@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Soo Design — 포트폴리오 게시판</title>
+  <meta name="description" content="산뜻한 하늘색 톤의 유럽미장 인테리어 포트폴리오 게시판." />
+  <meta name="theme-color" content="#87ceeb" />
+  <style>
+    :root{
+      --bg:#f5fbff;--card:#fff;--text:#2f2f2f;--muted:#6d7a85;--primary:#5dade2;--primary-2:#a3d5f7;--ring:rgba(93,173,226,.4);--shadow:0 8px 22px rgba(0,0,0,.08);--radius:16px;--container:1120px
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Noto Sans KR",Pretendard,ui-sans-serif,system-ui;color:var(--text);background:var(--bg)}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;height:auto;border-radius:12px}
+    .container{width:min(100%,var(--container));margin-inline:auto;padding:20px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);box-shadow:var(--shadow);z-index:50}
+    nav{display:flex;align-items:center;justify-content:space-between;height:64px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+    .logo{width:28px;height:28px;border-radius:50%;background:var(--primary);box-shadow:0 6px 14px rgba(93,173,226,.4)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid #e6eef5;background:#fff;font-weight:700}
+    .btn.primary{background:var(--primary);color:#fff;border-color:transparent}
+    .btn.ghost{background:#f0f7fc}
+    h1{font-size:clamp(24px,3.5vw,34px);margin:12px 0}
+    .controls{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin:16px 0}
+    .search{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;border:1px solid #e3edf6;background:#fff}
+    input,select,textarea{width:100%;border:1px solid #e3edf6;border-radius:12px;padding:10px 12px;outline:none;background:#fff}
+    input:focus,select:focus,textarea:focus{box-shadow:0 0 0 6px var(--ring);border-color:var(--primary-2)}
+
+    /* 그리드 */
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .card{grid-column:span 4;background:var(--card);border:1px solid #f0f0f0;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .card .meta{padding:12px 14px}
+    .card .title{font-weight:800}
+    .pill{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;background:#eef7fd;border:1px solid #d9ecfb;font-size:12px;margin-right:6px}
+    @media(max-width:980px){.card{grid-column:span 12}.controls{grid-template-columns:1fr}}
+
+    /* 페이지네이션 */
+    .pager{display:flex;gap:6px;justify-content:center;margin:22px 0}
+    .pager button{padding:8px 12px;border-radius:10px;border:1px solid #e3edf6;background:#fff}
+    .pager .current{background:var(--primary);color:#fff;border-color:transparent}
+
+    /* 모달 */
+    dialog{border:0;border-radius:20px;padding:0;max-width:min(920px,95vw);box-shadow:0 24px 60px rgba(0,0,0,.25)}
+    .modal{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;background:#fff;border-radius:20px;overflow:hidden}
+    .modal .body{padding:18px}
+    .modal header{position:unset;background:unset;box-shadow:none}
+    .close{position:absolute;top:10px;right:10px}
+    @media(max-width:900px){.modal{grid-template-columns:1fr}}
+
+    /* 관리 */
+    details.admin{margin:18px 0}
+    details.admin summary{cursor:pointer;font-weight:800}
+    .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:900px){.admin-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="brand">
+          <span class="logo" aria-hidden="true"></span>
+          <a href="index.html" aria-label="홈으로">Soo Design</a>
+        </div>
+        <div>
+          <a class="btn ghost" href="index.html#work">← 홈페이지로</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="main">
+    <h1>포트폴리오</h1>
+    <p class="kicker" style="color:var(--muted)">완료/진행 프로젝트를 이미지 카드로 정리합니다. 상단 검색·필터를 이용해 빠르게 찾아보세요.</p>
+
+    <!-- 컨트롤 영역 -->
+    <div class="controls" role="region" aria-label="검색 및 필터">
+      <div class="search" style="gap:10px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.35-4.35" stroke="#6d7a85" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="#6d7a85" stroke-width="2"/></svg>
+        <input id="q" placeholder="프로젝트명, 설명, 태그 검색" aria-label="검색어" />
+      </div>
+      <select id="tag" aria-label="태그 필터"><option value="">전체 태그</option></select>
+      <button class="btn" id="reset">초기화</button>
+    </div>
+
+    <!-- 카드 그리드 -->
+    <section class="grid" id="grid" aria-live="polite"></section>
+
+    <!-- 페이지네이션 -->
+    <div class="pager" id="pager" role="navigation" aria-label="페이지 이동"></div>
+
+    <!-- 관리자(정적 사이트 친화: 로컬에서 작성 후 Export/Import) -->
+    <details class="admin">
+      <summary>관리자 모드(로컬 편집 → JSON 내보내기/가져오기)</summary>
+      <div class="card" style="padding:16px">
+        <div class="admin-grid">
+          <div>
+            <h3 style="margin:6px 0">새 항목 추가</h3>
+            <label>제목<input id="f-title"/></label>
+            <label class="mt-2">설명<textarea id="f-desc" rows="3"></textarea></label>
+            <label class="mt-2">태그(쉼표로 구분)<input id="f-tags" placeholder="카페, 리모델링"/></label>
+            <label class="mt-2">대표 이미지 URL<input id="f-img" placeholder="https://...jpg"/></label>
+            <label class="mt-2">상세 이미지 URL(줄바꿈으로 여러 개) <textarea id="f-gallery" rows="3" placeholder="https://...jpg\nhttps://...jpg"></textarea></label>
+            <button class="btn primary mt-2" id="add">추가</button>
+          </div>
+          <div>
+            <h3 style="margin:6px 0">데이터 관리</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" id="export">JSON 내보내기</button>
+              <label class="btn"><input id="import" type="file" accept="application/json" hidden/>JSON 가져오기</label>
+              <button class="btn" id="clear">모든 항목 삭제(로컬)</button>
+            </div>
+            <p class="mt-2" style="color:var(--muted)">※ 이 편집 내용은 브라우저 <strong>localStorage</strong>에 임시 저장됩니다. 내보낸 JSON을 리포지토리에 <code>portfolio-data.json</code>으로 업로드하면 모든 사용자에게 동일하게 노출됩니다.</p>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- 상세 모달 -->
+    <dialog id="detail">
+      <form method="dialog" style="position:relative">
+        <button class="btn close" aria-label="닫기">닫기</button>
+        <div class="modal">
+          <div id="detail-gallery"></div>
+          <div class="body">
+            <h2 id="detail-title" style="margin:0 0 8px"></h2>
+            <div id="detail-tags" style="margin-bottom:10px"></div>
+            <p id="detail-desc" style="color:var(--muted)"></p>
+          </div>
+        </div>
+      </form>
+    </dialog>
+  </main>
+
+  <script>
+    // ----- 데이터 로딩 규칙 -----
+    // 1) 외부 JSON(같은 리포에 올린 portfolio-data.json)이 있으면 우선 사용
+    // 2) 없으면 seedData 사용
+    // 3) localStorage("soodesign-portfolio")에 값이 있으면 그걸로 override
+
+    const seedData = [
+      {
+        id: 1,
+        title: "따뜻한 하늘톤 카페 리모델링",
+        desc: "유럽미장 질감 위에 하늘색 포인트를 더해 밝고 산뜻한 무드 연출.",
+        tags: ["카페", "리모델링"],
+        cover: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop",
+        gallery: [
+          "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop"
+        ]
+      },
+      {
+        id: 2,
+        title: "모던 주거 인테리어",
+        desc: "화이트&스카이블루 팔레트와 곡선 가구로 부드러운 동선.",
+        tags: ["주거", "리빙"],
+        cover: "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1200&auto=format&fit=crop",
+        gallery: [
+          "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1200&auto=format&fit=crop"
+        ]
+      },
+      {
+        id: 3,
+        title: "브런치 레스토랑",
+        desc: "밝은 톤 목재와 하늘색 포인트 벽으로 청량한 분위기 구현.",
+        tags: ["상업", "레스토랑"],
+        cover: "https://images.unsplash.com/photo-1550985607-b283cf7247d2?q=80&w=1200&auto=format&fit=crop",
+        gallery: [
+          "https://images.unsplash.com/photo-1550985607-b283cf7247d2?q=80&w=1200&auto=format&fit=crop"
+        ]
+      }
+    ];
+
+    const KEY = "soodesign-portfolio";
+    let items = [];
+
+    async function loadData(){
+      try {
+        const res = await fetch("portfolio-data.json", {cache: "no-store"});
+        if(res.ok){
+          items = await res.json();
+        } else {
+          items = seedData;
+        }
+      } catch(_){ items = seedData; }
+      const local = localStorage.getItem(KEY);
+      if(local){
+        try { items = JSON.parse(local); } catch(_){}
+      }
+      items.forEach((it,i)=>{ if(!it.id) it.id = i+1; if(!it.tags) it.tags=[]; if(!it.gallery) it.gallery=[it.cover].filter(Boolean); });
+    }
+
+    // ----- 렌더링 -----
+    const grid = document.getElementById('grid');
+    const pager = document.getElementById('pager');
+    const q = document.getElementById('q');
+    const tagSel = document.getElementById('tag');
+
+    const pageSize = 9; // 한 페이지 카드 수
+    let page = 1;
+
+    function uniqueTags(list){
+      return Array.from(new Set(list.flatMap(i=>i.tags||[])));
+    }
+
+    function filterItems(){
+      const s = (q.value||"").trim().toLowerCase();
+      const t = tagSel.value;
+      return items.filter(it=>{
+        const hay = (it.title + " " + (it.desc||"") + " " + (it.tags||[]).join(" ")).toLowerCase();
+        const okText = !s || hay.includes(s);
+        const okTag = !t || (it.tags||[]).includes(t);
+        return okText && okTag;
+      });
+    }
+
+    function renderTags(){
+      const tags = uniqueTags(items);
+      tagSel.innerHTML = '<option value="">전체 태그</option>' + tags.map(t=>`<option value="${t}">${t}</option>`).join('');
+    }
+
+    function render(){
+      const list = filterItems();
+      const total = Math.max(1, Math.ceil(list.length / pageSize));
+      if(page>total) page = total;
+      const start = (page-1)*pageSize;
+      const slice = list.slice(start, start+pageSize);
+
+      grid.innerHTML = slice.map(cardHTML).join('') || `<div class="card" style="grid-column:span 12;padding:18px">검색 결과가 없습니다.</div>`;
+
+      // pager
+      let html = '';
+      for(let i=1;i<=total;i++){
+        html += `<button ${i===page? 'class="current"':''} data-pg="${i}">${i}</button>`
+      }
+      pager.innerHTML = html;
+    }
+
+    function cardHTML(it){
+      return `<article class="card">
+        ${it.cover? `<img src="${it.cover}" alt="${it.title} 대표 이미지" loading="lazy"/>`:''}
+        <div class="meta">
+          <div class="title">${escapeHTML(it.title)}</div>
+          <p style="color:var(--muted);margin:6px 0 10px">${escapeHTML(it.desc||'')}</p>
+          <div>${(it.tags||[]).map(t=>`<span class="pill">#${escapeHTML(t)}</span>`).join('')}</div>
+          <div style="margin-top:10px"><button class="btn" data-id="${it.id}" data-open>자세히 보기</button></div>
+        </div>
+      </article>`
+    }
+
+    function escapeHTML(s){
+      return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    }
+
+    // ----- 상세 모달 -----
+    const detail = document.getElementById('detail');
+    const dTitle = document.getElementById('detail-title');
+    const dDesc = document.getElementById('detail-desc');
+    const dTags = document.getElementById('detail-tags');
+    const dGallery = document.getElementById('detail-gallery');
+
+    function openDetail(id){
+      const it = items.find(x=>String(x.id)===String(id));
+      if(!it) return;
+      dTitle.textContent = it.title;
+      dDesc.textContent = it.desc||'';
+      dTags.innerHTML = (it.tags||[]).map(t=>`<span class="pill">#${escapeHTML(t)}</span>`).join('');
+      dGallery.innerHTML = (it.gallery&&it.gallery.length? it.gallery: [it.cover].filter(Boolean)).map((src,i)=>`<img src="${src}" alt="${escapeHTML(it.title)} 상세 이미지 ${i+1}" loading="lazy"/>`).join('');
+      detail.showModal();
+    }
+
+    // ----- 이벤트 -----
+    q.addEventListener('input', ()=>{ page=1; render(); });
+    tagSel.addEventListener('change', ()=>{ page=1; render(); });
+    document.getElementById('reset').addEventListener('click', ()=>{ q.value=''; tagSel.value=''; page=1; render(); });
+    pager.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button[data-pg]');
+      if(!btn) return; page = Number(btn.dataset.pg); render();
+    });
+    grid.addEventListener('click', (e)=>{
+      const b = e.target.closest('button[data-open]');
+      if(!b) return; openDetail(b.dataset.id);
+    });
+
+    // 관리자 기능(로컬 편집)
+    function saveLocal(){ localStorage.setItem(KEY, JSON.stringify(items)); }
+    document.getElementById('add').addEventListener('click', ()=>{
+      const t = document.getElementById('f-title').value.trim();
+      if(!t) return alert('제목을 입력하세요');
+      const desc = document.getElementById('f-desc').value.trim();
+      const tags = document.getElementById('f-tags').value.split(',').map(s=>s.trim()).filter(Boolean);
+      const cover = document.getElementById('f-img').value.trim();
+      const gallery = document.getElementById('f-gallery').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      const id = Date.now();
+      items.unshift({id,title:t,desc,tags,cover,gallery:gallery.length?gallery:(cover?[cover]:[])});
+      saveLocal(); render(); alert('추가되었습니다 (로컬 저장). Export하여 JSON으로 커밋하세요.');
+    });
+    document.getElementById('export').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(items,null,2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'portfolio-data.json'; a.click(); URL.revokeObjectURL(a.href);
+    });
+    document.getElementById('import').addEventListener('change', (e)=>{
+      const file = e.target.files[0]; if(!file) return;
+      const fr = new FileReader();
+      fr.onload = ()=>{ try { items = JSON.parse(fr.result); saveLocal(); renderTags(); render(); alert('가져오기 완료(로컬 저장됨). 커밋하려면 Export 후 repo에 업로드하세요.'); } catch(err){ alert('JSON 형식 오류'); } };
+      fr.readAsText(file);
+    });
+    document.getElementById('clear').addEventListener('click', ()=>{
+      if(!confirm('로컬 데이터를 모두 삭제할까요?')) return;
+      localStorage.removeItem(KEY); items = seedData.slice(); renderTags(); render();
+    });
+
+    // 초기화
+    (async()=>{
+      await loadData();
+      renderTags();
+      render();
+    })();
+  </script>
+</body>
+</html>
