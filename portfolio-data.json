@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "title": "현대식 카페 인테리어",
+    "desc": "화이트와 블루톤으로 산뜻하게 구성한 카페 공간",
+    "tags": [
+      "카페",
+      "리모델링"
+    ],
+    "cover": "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop",
+    "gallery": [
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "프랜차이즈 매장 인테리어",
+    "desc": "브랜드 정체성을 살린 세련된 매장 디자인",
+    "tags": [
+      "상업",
+      "프랜차이즈"
+    ],
+    "cover": "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1200&auto=format&fit=crop",
+    "gallery": []
+  },
+  {
+    "id": 3,
+    "title": "모던 주거 공간 인테리어",
+    "desc": "화이트와 우드톤으로 따뜻하고 아늑한 거실 연출",
+    "tags": [
+      "주거",
+      "리빙룸"
+    ],
+    "cover": "https://images.unsplash.com/photo-1505691723518-36a5ac3be353?q=80&w=1200&auto=format&fit=crop",
+    "gallery": []
+  }
+]
