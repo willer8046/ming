@@ -42,9 +42,9 @@
     dialog{border:0;border-radius:20px;padding:0;max-width:min(920px,95vw);box-shadow:0 24px 60px rgba(0,0,0,.25)}
     .modal{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;background:#fff;border-radius:20px;overflow:hidden}
     .modal .body{padding:18px}
-    .modal header{position:unset;background:unset;box-shadow:none}
     .close{position:absolute;top:10px;right:10px}
     @media(max-width:900px){.modal{grid-template-columns:1fr}}
+
     /* 관리자: 기본 숨김 */
     details.admin{display:none}
     /* 관리자 전용 UI 가시화 */
@@ -60,8 +60,10 @@
           <span class="logo" aria-hidden="true"></span>
           <a href="index.html" aria-label="홈으로">Soo Design</a>
         </div>
-        <div>
+        <div style="display:flex;gap:10px">
           <a class="btn ghost" href="index.html#work">← 홈페이지로</a>
+          <!-- 관리자 로그인 버튼 -->
+          <button class="btn" id="btn-admin-login">관리자 로그인</button>
         </div>
       </nav>
     </div>
@@ -82,7 +84,7 @@
     <section class="grid" id="grid" aria-live="polite"></section>
     <div class="pager" id="pager" role="navigation" aria-label="페이지 이동"></div>
 
-    <!-- 관리자(비밀번호 통과 시에만 노출) -->
+    <!-- 관리자(로그인 후 노출) -->
     <details class="admin">
       <summary>관리자 모드(로컬 편집 → JSON 내보내기/가져오기)</summary>
       <div class="card" style="padding:16px">
@@ -146,7 +148,7 @@ https://...jpg"></textarea></label>
               <button type="button" class="btn primary" id="e-save">저장</button>
               <button type="button" class="btn" id="e-cancel">취소</button>
             </div>
-            <p class="kicker" style="color:var(--muted);margin-top:10px">저장하면 브라우저 <strong>localStorage</strong>에 반영됩니다. 모두에게 적용하려면 상단 관리자 모드에서 <strong>JSON 내보내기</strong> 후 <code>portfolio-data.json</code>으로 업로드하세요.</p>
+            <p class="kicker" style="color:var(--muted);margin-top:10px">저장하면 브라우저 <strong>localStorage</strong>에 반영됩니다. 모두에게 적용하려면 관리자 모드에서 <strong>JSON 내보내기</strong> 후 <code>portfolio-data.json</code>으로 업로드하세요.</p>
           </div>
         </div>
       </form>
@@ -163,7 +165,7 @@ https://...jpg"></textarea></label>
 
     const KEY = "soodesign-portfolio";
     let items = [];
-    let currentDetailId = null; // 상세/수정 모달에서 사용
+    let currentDetailId = null;
 
     async function loadData(){
       try {
@@ -206,9 +208,7 @@ https://...jpg"></textarea></label>
       return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
     }
 
-    function isAdmin(){
-      return sessionStorage.getItem(SESSION_OK) === '1';
-    }
+    function isAdmin(){ return sessionStorage.getItem(SESSION_OK) === '1'; }
 
     function cardHTML(it){
       return `<article class="card">
@@ -237,7 +237,7 @@ https://...jpg"></textarea></label>
       pager.innerHTML = html;
     }
 
-    // 상세 모달
+    // ===== 상세 모달 =====
     const detail = document.getElementById('detail');
     const dTitle = document.getElementById('detail-title');
     const dDesc = document.getElementById('detail-desc');
@@ -253,12 +253,12 @@ https://...jpg"></textarea></label>
       dTags.innerHTML = (it.tags||[]).map(t=>`<span class="pill">#${escapeHTML(t)}</span>`).join('');
       dGallery.innerHTML = (it.gallery&&it.gallery.length? it.gallery: [it.cover].filter(Boolean)).map((src,i)=>`<img src="${src}" alt="${escapeHTML(it.title)} 상세 이미지 ${i+1}" loading="lazy"/>`).join('');
       detail.showModal();
-      // 상세 내부 관리자 버튼 표시/숨김
+      // 상세 내부 관리자 버튼
       document.getElementById('btn-edit-in-detail').style.display = isAdmin()? 'inline-flex':'none';
       document.getElementById('btn-del-in-detail').style.display = isAdmin()? 'inline-flex':'none';
     }
 
-    // 수정 모달
+    // ===== 수정 모달 =====
     const edit = document.getElementById('edit');
     const eId = document.getElementById('e-id');
     const eTitle = document.getElementById('e-title');
@@ -313,7 +313,7 @@ https://...jpg"></textarea></label>
       alert('삭제되었습니다. (로컬 저장) JSON 내보내기로 배포용 파일을 갱신하세요.');
     }
 
-    // 이벤트
+    // ===== 이벤트 바인딩 =====
     q.addEventListener('input', ()=>{ page=1; render(); });
     tagSel.addEventListener('change', ()=>{ page=1; render(); });
     document.getElementById('reset').addEventListener('click', ()=>{ q.value=''; tagSel.value=''; page=1; render(); });
@@ -331,13 +331,11 @@ https://...jpg"></textarea></label>
     document.getElementById('e-save').addEventListener('click', applyEdit);
     document.getElementById('e-cancel').addEventListener('click', ()=>edit.close());
 
-    // ===== 관리자 비밀번호 게이트 (SHA-256 + 시도 제한) =====
+    // ===== 관리자 로그인(버튼으로만 실행) =====
+    // 비밀번호는 SALT + PW 를 SHA-256으로 검증
     const ADMIN_HASH = "c329cfdb1163aaf387bd97c0590e15063cf2cba22e4527aa11de43054ad21de2"; // "soodesign-v1" + "Rksqn23#"
     const SALT = "soodesign-v1";
-    const KEY_TRY = "soodesign-admin-tries";
-    const KEY_UNTIL = "soodesign-admin-until";
     const SESSION_OK = "soodesign-admin-ok";
-    const MAX_TRIES = 5; const LOCK_MINUTES = 10;
 
     async function sha256Hex(str){
       const enc=new TextEncoder().encode(str);
@@ -347,34 +345,67 @@ https://...jpg"></textarea></label>
     function showAdmin(){
       const el=document.querySelector('details.admin');
       if(el) el.style.display='block';
-      document.body.classList.add('is-admin'); // 카드의 수정/삭제 버튼 가시화
-      render(); // 버튼 반영 위해 재렌더
+      document.body.classList.add('is-admin');
+      render(); // 카드에 수정/삭제 버튼 반영
     }
-    async function adminGate(){
-      if(sessionStorage.getItem(SESSION_OK)==='1'){ showAdmin(); return; }
-      const now=Date.now(); const until=Number(localStorage.getItem(KEY_UNTIL)||0);
-      if(now<until){ const left=Math.ceil((until-now)/60000); alert(`관리자 접근이 잠겨 있습니다. ${left}분 후 다시 시도하세요.`); return; }
-      const pw=prompt('관리자 비밀번호를 입력하세요:'); if(pw===null) return;
+    async function adminLogin(){
+      const pw=prompt('관리자 비밀번호를 입력하세요:');
+      if(!pw) return;
       const digest=await sha256Hex(SALT+pw);
       if(digest===ADMIN_HASH){
         sessionStorage.setItem(SESSION_OK,'1');
-        localStorage.removeItem(KEY_TRY);
-        localStorage.removeItem(KEY_UNTIL);
-        showAdmin(); return;
-      }
-      let tries=Number(localStorage.getItem(KEY_TRY)||0)+1;
-      localStorage.setItem(KEY_TRY,String(tries));
-      if(tries>=MAX_TRIES){
-        localStorage.setItem(KEY_UNTIL,String(now+LOCK_MINUTES*60000));
-        localStorage.removeItem(KEY_TRY);
-        alert(`비밀번호 ${MAX_TRIES}회 오류로 ${LOCK_MINUTES}분 잠금되었습니다.`);
+        showAdmin();
+        alert('관리자 모드가 활성화되었습니다.');
       } else {
-        alert(`비밀번호가 올바르지 않습니다. (${tries}/${MAX_TRIES})`);
+        alert('비밀번호가 올바르지 않습니다.');
       }
     }
 
-    // 초기화
-    (async()=>{ await loadData(); renderTags(); render(); adminGate(); })();
+    document.getElementById('btn-admin-login').addEventListener('click', adminLogin);
+
+    // 이미 로그인된 세션이면 자동 표시(팝업 없음)
+    if(sessionStorage.getItem(SESSION_OK)==='1'){ showAdmin(); }
+
+    // ===== 초기화 =====
+    (async()=>{ await loadData(); renderTags(); render(); })();
+    
+    // ===== 관리자 모드: 추가/가져오기/내보내기/초기화 =====
+    document.getElementById('add').addEventListener('click', ()=>{
+      if(!isAdmin()) return alert('관리자 모드에서만 가능합니다.');
+      const t = document.getElementById('f-title').value.trim();
+      if(!t) return alert('제목을 입력하세요');
+      const desc = document.getElementById('f-desc').value.trim();
+      const tags = document.getElementById('f-tags').value.split(',').map(s=>s.trim()).filter(Boolean);
+      const cover = document.getElementById('f-img').value.trim();
+      const gallery = document.getElementById('f-gallery').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      const id = Date.now();
+      items.unshift({id,title:t,desc,tags,cover,gallery:gallery.length?gallery:(cover?[cover]:[])});
+      saveLocal(); renderTags(); render();
+      alert('추가되었습니다. (로컬 저장) JSON 내보내기로 배포용 파일을 갱신하세요.');
+    });
+
+    document.getElementById('export').addEventListener('click', ()=>{
+      if(!isAdmin()) return alert('관리자 모드에서만 가능합니다.');
+      const blob = new Blob([JSON.stringify(items,null,2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'portfolio-data.json'; a.click(); URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('import').addEventListener('change', (e)=>{
+      if(!isAdmin()) return alert('관리자 모드에서만 가능합니다.');
+      const file = e.target.files[0]; if(!file) return;
+      const fr = new FileReader();
+      fr.onload = ()=>{
+        try { items = JSON.parse(fr.result); saveLocal(); renderTags(); render(); alert('가져오기 완료(로컬 저장됨). 내보내기 후 repo에 업로드하세요.'); }
+        catch(err){ alert('JSON 형식 오류'); }
+      };
+      fr.readAsText(file);
+    });
+
+    document.getElementById('clear').addEventListener('click', ()=>{
+      if(!isAdmin()) return alert('관리자 모드에서만 가능합니다.');
+      if(!confirm('로컬 데이터를 모두 삭제할까요?')) return;
+      localStorage.removeItem(KEY); items = seedData.slice(); renderTags(); render();
+    });
   </script>
 </body>
 </html>
