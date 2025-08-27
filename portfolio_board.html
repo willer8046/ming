@@ -254,8 +254,8 @@ https://...jpg"></textarea></label>
       dGallery.innerHTML = (it.gallery&&it.gallery.length? it.gallery: [it.cover].filter(Boolean)).map((src,i)=>`<img src="${src}" alt="${escapeHTML(it.title)} 상세 이미지 ${i+1}" loading="lazy"/>`).join('');
       detail.showModal();
       // 상세 내부 관리자 버튼
-      document.getElementById('btn-edit-in-detail').style.display = isAdmin()? 'inline-flex':'none';
-      document.getElementById('btn-del-in-detail').style.display = isAdmin()? 'inline-flex':'none';
+      document.getElementById('btn-edit-in-detail').style.display = is()? 'inline-flex':'none';
+      document.getElementById('btn-del-in-detail').style.display = is()? 'inline-flex':'none';
     }
 
     // ===== 수정 모달 =====
@@ -332,8 +332,8 @@ https://...jpg"></textarea></label>
     document.getElementById('e-cancel').addEventListener('click', ()=>edit.close());
 
     // ===== 관리자 로그인(버튼으로만 실행) =====
-    // 비밀번호는 SALT + PW 를 SHA-256으로 검증
-    const ADMIN_HASH = "c329cfdb1163aaf387bd97c0590e15063cf2cba22e4527aa11de43054ad21de2"; // "soodesign-v1" + "Rksqn23#"
+    // 관리자 비밀번호 검증 (SALT + PASSWORD 의 SHA-256)
+    const ADMIN_HASH = "7e224edda74c33886fbc3fa9a14c97ff2681f0862587ee99f91169489c59ef07"; // "soodesign-v1" + "Rksqn23#"
     const SALT = "soodesign-v1";
     const SESSION_OK = "soodesign-admin-ok";
 
