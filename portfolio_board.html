@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Soo Design — 포트폴리오 게시판</title>
-  <meta name="description" content="산뜻한 하늘색 톤의 유럽미장 인테리어 포트폴리오 게시판." />
+  <meta name="description" content="산뜻한 하늘톤의 유럽미장 감성 포트폴리오." />
   <meta name="theme-color" content="#87ceeb" />
   <style>
     :root{
@@ -20,7 +20,7 @@
     header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);box-shadow:var(--shadow);z-index:50}
     nav{display:flex;align-items:center;justify-content:space-between;height:64px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
-    .logo{width:28px;height:28px;border-radius:50%;background:var(--primary);box-shadow:0 6px 14px rgba(93,173,226,.4)}
+    .logo{width:28px;height:28px;border-radius:50%;background:var(--primary)}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid #e6eef5;background:#fff;font-weight:700;cursor:pointer}
     .btn.primary{background:var(--primary);color:#fff;border-color:transparent}
     .btn.ghost{background:#f0f7fc}
@@ -32,6 +32,9 @@
     input:focus,select:focus,textarea:focus{box-shadow:0 0 0 6px var(--ring);border-color:var(--primary-2)}
     .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
     .card{grid-column:span 4;background:var(--card);border:1px solid #f0f0f0;border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+    .card .media{position:relative;aspect-ratio:16/9;background:#eef6fb}
+    .card .media img{width:100%;height:100%;object-fit:cover;border-radius:0}
+    .yt-badge{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:4px 8px;font-size:12px}
     .card .meta{padding:12px 14px}
     .card .title{font-weight:800}
     .pill{display:inline-flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;background:#eef7fd;border:1px solid #d9ecfb;font-size:12px;margin-right:6px}
@@ -39,15 +42,14 @@
     .pager{display:flex;gap:6px;justify-content:center;margin:22px 0}
     .pager button{padding:8px 12px;border-radius:10px;border:1px solid #e3edf6;background:#fff;cursor:pointer}
     .pager .current{background:var(--primary);color:#fff;border-color:transparent}
-    dialog{border:0;border-radius:20px;padding:0;max-width:min(920px,95vw);box-shadow:0 24px 60px rgba(0,0,0,.25)}
-    .modal{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;background:#fff;border-radius:20px;overflow:hidden}
+    dialog{border:0;border-radius:20px;padding:0;max-width:min(980px,95vw);box-shadow:0 24px 60px rgba(0,0,0,.25)}
+    .modal{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;background:#fff;border-radius:20px;overflow:hidden}
     .modal .body{padding:18px}
     .close{position:absolute;top:10px;right:10px}
+    .media-stack{display:grid;gap:10px}
+    .media-stack iframe,.media-stack img{width:100%;border-radius:12px}
     @media(max-width:900px){.modal{grid-template-columns:1fr}}
-
-    /* 관리자: 기본 숨김 */
     details.admin{display:none}
-    /* 관리자 전용 UI 가시화 */
     .admin-tools{display:none;gap:8px;margin-top:10px}
     body.is-admin .admin-tools{display:flex}
   </style>
@@ -62,7 +64,6 @@
         </div>
         <div style="display:flex;gap:10px">
           <a class="btn ghost" href="index.html#work">← 홈페이지로</a>
-          <!-- 관리자 로그인 버튼 -->
           <button class="btn" id="btn-admin-login">관리자 로그인</button>
         </div>
       </nav>
@@ -71,7 +72,7 @@
 
   <main class="container" id="main">
     <h1>포트폴리오</h1>
-    <p class="kicker" style="color:var(--muted)">완료/진행 프로젝트를 이미지 카드로 정리합니다. 상단 검색·필터를 이용해 빠르게 찾아보세요.</p>
+    <p class="kicker" style="color:var(--muted)">유튜브 영상이 먼저 노출되고, 이어서 최대 10장의 사진 갤러리를 보여줍니다.</p>
 
     <div class="controls" role="region" aria-label="검색 및 필터">
       <div class="search" style="gap:10px">
@@ -94,9 +95,12 @@
             <label>제목<input id="f-title"/></label>
             <label class="mt-2">설명<textarea id="f-desc" rows="3"></textarea></label>
             <label class="mt-2">태그(쉼표로 구분)<input id="f-tags" placeholder="카페, 리모델링"/></label>
-            <label class="mt-2">대표 이미지 URL<input id="f-img" placeholder="https://...jpg"/></label>
-            <label class="mt-2">상세 이미지 URL(줄바꿈으로 여러 개) <textarea id="f-gallery" rows="3" placeholder="https://...jpg
-https://...jpg"></textarea></label>
+            <label class="mt-2">대표 이미지 URL(썸네일 용)<input id="f-img" placeholder="https://...jpg"/></label>
+            <label class="mt-2">유튜브 URL(첫 화면, 선택)<input id="f-yt" placeholder="https://youtu.be/VIDEO_ID 또는 https://www.youtube.com/watch?v=VIDEO_ID"/></label>
+            <label class="mt-2">상세 이미지 URL(줄바꿈으로 최대 10장)
+              <textarea id="f-gallery" rows="4" placeholder="https://...1.jpg
+https://...2.jpg"></textarea>
+            </label>
             <button class="btn primary mt-2" id="add">추가</button>
           </div>
           <div>
@@ -106,18 +110,18 @@ https://...jpg"></textarea></label>
               <label class="btn"><input id="import" type="file" accept="application/json" hidden/>JSON 가져오기</label>
               <button class="btn" id="clear">모든 항목 삭제(로컬)</button>
             </div>
-            <p class="mt-2" style="color:var(--muted)">※ 편집 내용은 브라우저 <strong>localStorage</strong>에 임시 저장됩니다. 내보낸 JSON을 리포지토리에 <code>portfolio-data.json</code>으로 업로드하면 모든 사용자에게 동일하게 반영됩니다.</p>
+            <p class="kicker" style="color:var(--muted)">※ 편집 내용은 브라우저 <strong>localStorage</strong>에 임시 저장됩니다. 내보낸 JSON을 리포지토리에 <code>portfolio-data.json</code>으로 업로드하면 전체에 반영됩니다.</p>
           </div>
         </div>
       </div>
     </details>
 
-    <!-- 상세 보기 모달 -->
+    <!-- 상세 보기 -->
     <dialog id="detail">
       <form method="dialog" style="position:relative">
         <button class="btn close" aria-label="닫기">닫기</button>
         <div class="modal">
-          <div id="detail-gallery"></div>
+          <div class="media-stack" id="detail-gallery"></div>
           <div class="body">
             <h2 id="detail-title" style="margin:0 0 8px"></h2>
             <div id="detail-tags" style="margin-bottom:10px"></div>
@@ -131,7 +135,7 @@ https://...jpg"></textarea></label>
       </form>
     </dialog>
 
-    <!-- 수정 모달 -->
+    <!-- 수정 -->
     <dialog id="edit">
       <form method="dialog" style="position:relative">
         <button class="btn close" aria-label="닫기">닫기</button>
@@ -142,13 +146,14 @@ https://...jpg"></textarea></label>
             <label class="mt-2">제목<input id="e-title" /></label>
             <label class="mt-2">설명<textarea id="e-desc" rows="3"></textarea></label>
             <label class="mt-2">태그(쉼표로 구분)<input id="e-tags" /></label>
-            <label class="mt-2">대표 이미지 URL<input id="e-cover" /></label>
-            <label class="mt-2">상세 이미지 URL(줄바꿈으로 여러 개)<textarea id="e-gallery" rows="4"></textarea></label>
+            <label class="mt-2">대표 이미지 URL(썸네일)<input id="e-cover" /></label>
+            <label class="mt-2">유튜브 URL(선택)<input id="e-yt" /></label>
+            <label class="mt-2">상세 이미지 URL(줄바꿈 최대 10장)<textarea id="e-gallery" rows="4"></textarea></label>
             <div style="display:flex;gap:8px;margin-top:12px">
               <button type="button" class="btn primary" id="e-save">저장</button>
               <button type="button" class="btn" id="e-cancel">취소</button>
             </div>
-            <p class="kicker" style="color:var(--muted);margin-top:10px">저장하면 브라우저 <strong>localStorage</strong>에 반영됩니다. 모두에게 적용하려면 관리자 모드에서 <strong>JSON 내보내기</strong> 후 <code>portfolio-data.json</code>으로 업로드하세요.</p>
+            <p class="kicker" style="color:var(--muted);margin-top:10px">저장하면 <strong>localStorage</strong>에 반영됩니다. 전체 반영은 JSON 내보내기 → <code>portfolio-data.json</code> 업로드.</p>
           </div>
         </div>
       </form>
@@ -156,11 +161,30 @@ https://...jpg"></textarea></label>
   </main>
 
   <script>
+    // ===== 유틸: YouTube ID 추출 & 썸네일 =====
+    function extractYouTubeId(url=""){
+      if(!url) return "";
+      try{
+        const u = new URL(url);
+        if(u.hostname.includes("youtu.be")) return u.pathname.slice(1);
+        if(u.hostname.includes("youtube.com")){
+          if(u.searchParams.get("v")) return u.searchParams.get("v");
+          const p = u.pathname.split("/");
+          const i = p.indexOf("embed");
+          if(i>=0 && p[i+1]) return p[i+1];
+        }
+      }catch(_){}
+      // 혹시 순수 ID만 들어온 경우
+      if(/^[\w-]{11}$/.test(url)) return url;
+      return "";
+    }
+    function ytThumb(id){ return `https://img.youtube.com/vi/${id}/hqdefault.jpg`; }
+
     // ===== 데이터 로딩 =====
     const seedData = [
-      { id:1, title:"따뜻한 하늘톤 카페 리모델링", desc:"유럽미장 질감 위에 하늘색 포인트를 더해 밝고 산뜻한 무드 연출.", tags:["카페","리모델링"], cover:"https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop", gallery:["https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop"] },
+      { id:1, title:"따뜻한 하늘톤 카페 리모델링", desc:"유럽미장 질감 위에 하늘색 포인트로 산뜻한 무드.", tags:["카페","리모델링"], cover:"https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop", youtube:"https://youtu.be/dQw4w9WgXcQ", gallery:["https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop"] },
       { id:2, title:"모던 주거 인테리어", desc:"화이트&스카이블루 팔레트와 곡선 가구로 부드러운 동선.", tags:["주거","리빙"], cover:"https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1200&auto=format&fit=crop", gallery:["https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1200&auto=format&fit=crop"] },
-      { id:3, title:"브런치 레스토랑", desc:"밝은 톤 목재와 하늘색 포인트 벽으로 청량한 분위기 구현.", tags:["상업","레스토랑"], cover:"https://images.unsplash.com/photo-1550985607-b283cf7247d2?q=80&w=1200&auto=format&fit=crop", gallery:["https://images.unsplash.com/photo-1550985607-b283cf7247d2?q=80&w=1200&auto=format&fit=crop"] }
+      { id:3, title:"브런치 레스토랑", desc:"밝은 톤 목재와 하늘색 포인트 벽으로 청량한 분위기.", tags:["상업","레스토랑"], cover:"https://images.unsplash.com/photo-1550985607-b283cf7247d2?q=80&w=1200&auto=format&fit=crop", gallery:["https://images.unsplash.com/photo-1550985607-b283cf7247d2?q=80&w=1200&auto=format&fit=crop"] }
     ];
 
     const KEY = "soodesign-portfolio";
@@ -174,7 +198,12 @@ https://...jpg"></textarea></label>
       } catch(_) { items = seedData; }
       const local = localStorage.getItem(KEY);
       if(local){ try { items = JSON.parse(local); } catch(_){} }
-      items.forEach((it,i)=>{ if(!it.id) it.id = i+1; if(!it.tags) it.tags=[]; if(!it.gallery) it.gallery=[it.cover].filter(Boolean); });
+      items.forEach((it,i)=>{
+        if(!it.id) it.id = i+1;
+        it.tags = it.tags || [];
+        it.gallery = (it.gallery || []).slice(0,10); // 최대 10장 제한
+        it.youtubeId = extractYouTubeId(it.youtube || "");
+      });
     }
     function saveLocal(){ localStorage.setItem(KEY, JSON.stringify(items)); }
 
@@ -205,14 +234,24 @@ https://...jpg"></textarea></label>
     }
 
     function escapeHTML(s){
-      return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+      return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;"," >":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
     }
 
-    function isAdmin(){ return sessionStorage.getItem(SESSION_OK) === '1'; }
+    function cardMediaHTML(it){
+      // 카드 첫 화면: 유튜브가 있으면 썸네일 + 뱃지, 없으면 cover 이미지
+      if(it.youtubeId){
+        const thumb = ytThumb(it.youtubeId);
+        return `<div class="media">
+          <img src="${thumb}" alt="${escapeHTML(it.title)} 유튜브 썸네일" loading="lazy"/>
+          <span class="yt-badge">▶ YouTube</span>
+        </div>`;
+      }
+      return it.cover ? `<div class="media"><img src="${it.cover}" alt="${escapeHTML(it.title)} 대표 이미지" loading="lazy"/></div>` : `<div class="media"></div>`;
+    }
 
     function cardHTML(it){
       return `<article class="card">
-        ${it.cover? `<img src="${it.cover}" alt="${escapeHTML(it.title)} 대표 이미지" loading="lazy"/>`:''}
+        ${cardMediaHTML(it)}
         <div class="meta">
           <div class="title">${escapeHTML(it.title)}</div>
           <p style="color:var(--muted);margin:6px 0 10px">${escapeHTML(it.desc||'')}</p>
@@ -237,7 +276,7 @@ https://...jpg"></textarea></label>
       pager.innerHTML = html;
     }
 
-    // ===== 상세 모달 =====
+    // ===== 상세 보기 =====
     const detail = document.getElementById('detail');
     const dTitle = document.getElementById('detail-title');
     const dDesc = document.getElementById('detail-desc');
@@ -251,20 +290,30 @@ https://...jpg"></textarea></label>
       dTitle.textContent = it.title;
       dDesc.textContent = it.desc||'';
       dTags.innerHTML = (it.tags||[]).map(t=>`<span class="pill">#${escapeHTML(t)}</span>`).join('');
-      dGallery.innerHTML = (it.gallery&&it.gallery.length? it.gallery: [it.cover].filter(Boolean)).map((src,i)=>`<img src="${src}" alt="${escapeHTML(it.title)} 상세 이미지 ${i+1}" loading="lazy"/>`).join('');
+      // 첫 화면: 유튜브(있으면) → 이후 이미지(최대 10장)
+      const mediaHtml = [];
+      if(it.youtubeId){
+        mediaHtml.push(`<iframe width="100%" height="360" src="https://www.youtube.com/embed/${it.youtubeId}" title="${escapeHTML(it.title)} 유튜브" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`);
+      } else if(it.cover){
+        mediaHtml.push(`<img src="${it.cover}" alt="${escapeHTML(it.title)} 대표 이미지" loading="lazy"/>`);
+      }
+      (it.gallery||[]).slice(0,10).forEach((src,i)=>{
+        mediaHtml.push(`<img src="${src}" alt="${escapeHTML(it.title)} 상세 이미지 ${i+1}" loading="lazy"/>`);
+      });
+      dGallery.innerHTML = mediaHtml.join('');
       detail.showModal();
-      // 상세 내부 관리자 버튼
-      document.getElementById('btn-edit-in-detail').style.display = is()? 'inline-flex':'none';
-      document.getElementById('btn-del-in-detail').style.display = is()? 'inline-flex':'none';
+      document.getElementById('btn-edit-in-detail').style.display = isAdmin()? 'inline-flex':'none';
+      document.getElementById('btn-del-in-detail').style.display = isAdmin()? 'inline-flex':'none';
     }
 
-    // ===== 수정 모달 =====
+    // ===== 수정 =====
     const edit = document.getElementById('edit');
     const eId = document.getElementById('e-id');
     const eTitle = document.getElementById('e-title');
     const eDesc = document.getElementById('e-desc');
     const eTags = document.getElementById('e-tags');
     const eCover = document.getElementById('e-cover');
+    const eYt = document.getElementById('e-yt');
     const eGallery = document.getElementById('e-gallery');
 
     function openEdit(id){
@@ -275,6 +324,7 @@ https://...jpg"></textarea></label>
       eDesc.value = it.desc || '';
       eTags.value = (it.tags || []).join(', ');
       eCover.value = it.cover || '';
+      eYt.value = it.youtube || '';
       eGallery.value = (it.gallery || []).join('\n');
       edit.showModal();
     }
@@ -284,21 +334,24 @@ https://...jpg"></textarea></label>
       const idx = items.findIndex(x=>String(x.id)===String(id));
       if(idx<0) return alert('항목을 찾을 수 없습니다.');
       const tags = eTags.value.split(',').map(s=>s.trim()).filter(Boolean);
-      const gallery = eGallery.value.split('\n').map(s=>s.trim()).filter(Boolean);
+      const gallery = eGallery.value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,10);
+      const youtube = eYt.value.trim();
       items[idx] = {
         ...items[idx],
         title: eTitle.value.trim(),
         desc: eDesc.value.trim(),
         tags,
         cover: eCover.value.trim(),
-        gallery: gallery.length? gallery : (eCover.value.trim()? [eCover.value.trim()] : items[idx].gallery || [])
+        youtube,
+        youtubeId: extractYouTubeId(youtube),
+        gallery
       };
       saveLocal();
       renderTags();
       render();
-      detail.open && openDetail(id); // 상세창 열려있으면 갱신
+      detail.open && openDetail(id);
       edit.close();
-      alert('수정되었습니다. (로컬 저장) JSON 내보내기로 배포용 파일을 갱신하세요.');
+      alert('수정되었습니다. (로컬 저장) JSON 내보내기로 배포 파일을 갱신하세요.');
     }
 
     function deleteItem(id){
@@ -310,10 +363,10 @@ https://...jpg"></textarea></label>
       renderTags();
       render();
       detail.close();
-      alert('삭제되었습니다. (로컬 저장) JSON 내보내기로 배포용 파일을 갱신하세요.');
+      alert('삭제되었습니다. (로컬 저장) JSON 내보내기로 배포 파일을 갱신하세요.');
     }
 
-    // ===== 이벤트 바인딩 =====
+    // ===== 이벤트 =====
     q.addEventListener('input', ()=>{ page=1; render(); });
     tagSel.addEventListener('change', ()=>{ page=1; render(); });
     document.getElementById('reset').addEventListener('click', ()=>{ q.value=''; tagSel.value=''; page=1; render(); });
@@ -331,9 +384,8 @@ https://...jpg"></textarea></label>
     document.getElementById('e-save').addEventListener('click', applyEdit);
     document.getElementById('e-cancel').addEventListener('click', ()=>edit.close());
 
-    // ===== 관리자 로그인(버튼으로만 실행) =====
-    // 관리자 비밀번호 검증 (SALT + PASSWORD 의 SHA-256)
-    const ADMIN_HASH = "7e224edda74c33886fbc3fa9a14c97ff2681f0862587ee99f91169489c59ef07"; // "soodesign-v1" + "Rksqn23#"
+    // ===== 관리자 로그인(버튼) =====
+    const ADMIN_HASH = "7e224edda74c33886fbc3fa9a14c97ff2681f0862587ee99f91169489c59ef07"; // SALT+PW
     const SALT = "soodesign-v1";
     const SESSION_OK = "soodesign-admin-ok";
 
@@ -342,46 +394,39 @@ https://...jpg"></textarea></label>
       const buf=await crypto.subtle.digest('SHA-256',enc);
       return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('');
     }
+    function isAdmin(){ return sessionStorage.getItem(SESSION_OK) === '1'; }
     function showAdmin(){
       const el=document.querySelector('details.admin');
       if(el) el.style.display='block';
       document.body.classList.add('is-admin');
-      render(); // 카드에 수정/삭제 버튼 반영
+      render();
     }
     async function adminLogin(){
-      const pw=prompt('관리자 비밀번호를 입력하세요:');
-      if(!pw) return;
+      const pw=prompt('관리자 비밀번호를 입력하세요:'); if(!pw) return;
       const digest=await sha256Hex(SALT+pw);
       if(digest===ADMIN_HASH){
-        sessionStorage.setItem(SESSION_OK,'1');
-        showAdmin();
-        alert('관리자 모드가 활성화되었습니다.');
-      } else {
-        alert('비밀번호가 올바르지 않습니다.');
-      }
+        sessionStorage.setItem(SESSION_OK,'1'); showAdmin(); alert('관리자 모드 활성화');
+      } else { alert('비밀번호가 올바르지 않습니다.'); }
     }
-
     document.getElementById('btn-admin-login').addEventListener('click', adminLogin);
+    if(isAdmin()) showAdmin();
 
-    // 이미 로그인된 세션이면 자동 표시(팝업 없음)
-    if(sessionStorage.getItem(SESSION_OK)==='1'){ showAdmin(); }
-
-    // ===== 초기화 =====
+    // ===== 초기화 & 관리자(추가/가져오기/내보내기/초기화) =====
     (async()=>{ await loadData(); renderTags(); render(); })();
-    
-    // ===== 관리자 모드: 추가/가져오기/내보내기/초기화 =====
+
     document.getElementById('add').addEventListener('click', ()=>{
       if(!isAdmin()) return alert('관리자 모드에서만 가능합니다.');
-      const t = document.getElementById('f-title').value.trim();
-      if(!t) return alert('제목을 입력하세요');
+      const title = document.getElementById('f-title').value.trim();
+      if(!title) return alert('제목을 입력하세요');
       const desc = document.getElementById('f-desc').value.trim();
       const tags = document.getElementById('f-tags').value.split(',').map(s=>s.trim()).filter(Boolean);
       const cover = document.getElementById('f-img').value.trim();
-      const gallery = document.getElementById('f-gallery').value.split('\n').map(s=>s.trim()).filter(Boolean);
+      const youtube = document.getElementById('f-yt').value.trim();
+      const gallery = document.getElementById('f-gallery').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,10);
       const id = Date.now();
-      items.unshift({id,title:t,desc,tags,cover,gallery:gallery.length?gallery:(cover?[cover]:[])});
+      items.unshift({id,title,desc,tags,cover,youtube,youtubeId:extractYouTubeId(youtube),gallery});
       saveLocal(); renderTags(); render();
-      alert('추가되었습니다. (로컬 저장) JSON 내보내기로 배포용 파일을 갱신하세요.');
+      alert('추가되었습니다. (로컬 저장) JSON 내보내기로 배포 파일을 갱신하세요.');
     });
 
     document.getElementById('export').addEventListener('click', ()=>{
@@ -395,8 +440,15 @@ https://...jpg"></textarea></label>
       const file = e.target.files[0]; if(!file) return;
       const fr = new FileReader();
       fr.onload = ()=>{
-        try { items = JSON.parse(fr.result); saveLocal(); renderTags(); render(); alert('가져오기 완료(로컬 저장됨). 내보내기 후 repo에 업로드하세요.'); }
-        catch(err){ alert('JSON 형식 오류'); }
+        try {
+          items = JSON.parse(fr.result);
+          items.forEach(it=>{
+            it.tags = it.tags || [];
+            it.gallery = (it.gallery || []).slice(0,10);
+            it.youtubeId = extractYouTubeId(it.youtube||"");
+          });
+          saveLocal(); renderTags(); render(); alert('가져오기 완료(로컬 저장). 내보내기 후 repo에 업로드하세요.');
+        } catch(err){ alert('JSON 형식 오류'); }
       };
       fr.readAsText(file);
     });
