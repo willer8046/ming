@@ -1,37 +1,42 @@
 [
   {
     "id": 1,
-    "title": "현대식 카페 인테리어",
-    "desc": "화이트와 블루톤으로 산뜻하게 구성한 카페 공간",
-    "tags": [
-      "카페",
-      "리모델링"
-    ],
+    "title": "따뜻한 하늘톤 카페 리모델링",
+    "desc": "유럽미장 질감 위에 하늘색 포인트로 산뜻한 무드를 연출했습니다.",
+    "tags": ["카페", "리모델링"],
     "cover": "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop",
+    "youtube": "https://youtu.be/dQw4w9WgXcQ",
+    "youtubeId": "dQw4w9WgXcQ",
     "gallery": [
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop"
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1493809842364-78817add7ffb?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop"
     ]
   },
   {
     "id": 2,
-    "title": "프랜차이즈 매장 인테리어",
-    "desc": "브랜드 정체성을 살린 세련된 매장 디자인",
-    "tags": [
-      "상업",
-      "프랜차이즈"
-    ],
+    "title": "모던 주거 인테리어",
+    "desc": "화이트와 스카이블루를 조합한 모던한 주거 공간 디자인입니다.",
+    "tags": ["주거", "리빙"],
     "cover": "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1200&auto=format&fit=crop",
-    "gallery": []
+    "youtube": "https://www.youtube.com/watch?v=ysz5S6PUM-U",
+    "youtubeId": "ysz5S6PUM-U",
+    "gallery": [
+      "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1200&auto=format&fit=crop"
+    ]
   },
   {
     "id": 3,
-    "title": "모던 주거 공간 인테리어",
-    "desc": "화이트와 우드톤으로 따뜻하고 아늑한 거실 연출",
-    "tags": [
-      "주거",
-      "리빙룸"
-    ],
-    "cover": "https://images.unsplash.com/photo-1505691723518-36a5ac3be353?q=80&w=1200&auto=format&fit=crop",
-    "gallery": []
+    "title": "브런치 레스토랑",
+    "desc": "밝은 목재와 하늘색 포인트 벽으로 청량한 분위기의 공간입니다.",
+    "tags": ["상업", "레스토랑"],
+    "cover": "https://images.unsplash.com/photo-1550985607-b283cf7247d2?q=80&w=1200&auto=format&fit=crop",
+    "youtube": "",
+    "youtubeId": "",
+    "gallery": [
+      "https://images.unsplash.com/photo-1550985607-b283cf7247d2?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1200&auto=format&fit=crop"
+    ]
   }
 ]
