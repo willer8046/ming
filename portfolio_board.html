@@ -52,6 +52,34 @@
     details.admin{display:none}
     .admin-tools{display:none;gap:8px;margin-top:10px}
     body.is-admin .admin-tools{display:flex}
+    /* ==== 유튜브 hover 재생 썸네일 ==== */
+.video-thumb {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.video-thumb img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: opacity 0.3s;
+}
+.video-thumb iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: none;
+}
+.video-thumb:hover img {
+  opacity: 0;
+}
+.video-thumb:hover iframe {
+  display: block;
+}
+
   </style>
 </head>
 <body>
@@ -237,17 +265,24 @@ https://...2.jpg"></textarea>
       return (s||'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;"," >":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
     }
 
-    function cardMediaHTML(it){
-      // 카드 첫 화면: 유튜브가 있으면 썸네일 + 뱃지, 없으면 cover 이미지
-      if(it.youtubeId){
-        const thumb = ytThumb(it.youtubeId);
-        return `<div class="media">
-          <img src="${thumb}" alt="${escapeHTML(it.title)} 유튜브 썸네일" loading="lazy"/>
-          <span class="yt-badge">▶ YouTube</span>
-        </div>`;
-      }
-      return it.cover ? `<div class="media"><img src="${it.cover}" alt="${escapeHTML(it.title)} 대표 이미지" loading="lazy"/></div>` : `<div class="media"></div>`;
-    }
+function cardMediaHTML(it){
+  if(it.youtubeId){
+    const thumb = ytThumb(it.youtubeId);
+    return `
+      <div class="media video-thumb" data-video="${it.youtubeId}">
+        <img src="${thumb}" alt="${escapeHTML(it.title)} 유튜브 썸네일" loading="lazy"/>
+        <iframe 
+          src="https://www.youtube.com/embed/${it.youtubeId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${it.youtubeId}" 
+          allow="autoplay; encrypted-media"
+          allowfullscreen></iframe>
+        <span class="yt-badge">▶ 영상</span>
+      </div>`;
+  }
+  return it.cover
+    ? `<div class="media"><img src="${it.cover}" alt="${escapeHTML(it.title)} 대표 이미지" loading="lazy"/></div>`
+    : `<div class="media"></div>`;
+}
+
 
     function cardHTML(it){
       return `<article class="card">
@@ -460,4 +495,5 @@ https://...2.jpg"></textarea>
     });
   </script>
 </body>
+  
 </html>
