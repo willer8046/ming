@@ -197,22 +197,48 @@ https://...2.jpg"></textarea>
 
   <script>
     // ===== 유틸: YouTube ID 추출 & 썸네일 =====
-    function extractYouTubeId(url=""){
-      if(!url) return "";
-      try{
-        const u = new URL(url);
-        if(u.hostname.includes("youtu.be")) return u.pathname.slice(1);
-        if(u.hostname.includes("youtube.com")){
-          if(u.searchParams.get("v")) return u.searchParams.get("v");
-          const p = u.pathname.split("/");
-          const i = p.indexOf("embed");
-          if(i>=0 && p[i+1]) return p[i+1];
-        }
-      }catch(_){}
-      // 혹시 순수 ID만 들어온 경우
-      if(/^[\w-]{11}$/.test(url)) return url;
-      return "";
+  function extractYouTubeId(url = "") {
+  if (!url) return "";
+
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace("www.", "");
+
+    // 1) youtu.be 단축 URL
+    if (host.includes("youtu.be")) {
+      // 예: https://youtu.be/VIDEOID
+      return u.pathname.replace("/", "");
     }
+
+    // 2) youtube.com 계열
+    if (host.includes("youtube.com")) {
+      // 2-1) 일반 동영상: ?v=VIDEOID
+      const v = u.searchParams.get("v");
+      if (v) return v;
+
+      // 2-2) 쇼츠: /shorts/VIDEOID
+      const segments = u.pathname.split("/").filter(Boolean); // ["shorts","VIDEOID"] 형태
+      const shortsIndex = segments.indexOf("shorts");
+      if (shortsIndex >= 0 && segments[shortsIndex + 1]) {
+        return segments[shortsIndex + 1];
+      }
+
+      // 2-3) 임베드: /embed/VIDEOID
+      const embedIndex = segments.indexOf("embed");
+      if (embedIndex >= 0 && segments[embedIndex + 1]) {
+        return segments[embedIndex + 1];
+      }
+    }
+  } catch (e) {
+    // new URL 실패하면 아래 정규식으로 처리
+  }
+
+  // 3) 혹시 순수 ID만 들어온 경우
+  if (/^[\w-]{11}$/.test(url)) return url;
+
+  return "";
+}
+
     function ytThumb(id){ return `https://img.youtube.com/vi/${id}/hqdefault.jpg`; }
 
     // ===== 데이터 로딩 =====
@@ -390,16 +416,21 @@ function cardMediaHTML(it){
       const tags = eTags.value.split(',').map(s=>s.trim()).filter(Boolean);
       const gallery = eGallery.value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,10);
       const youtube = eYt.value.trim();
-      items[idx] = {
-        ...items[idx],
-        title: eTitle.value.trim(),
-        desc: eDesc.value.trim(),
-        tags,
-        cover: eCover.value.trim(),
-        youtube,
-        youtubeId: extractYouTubeId(youtube),
-        gallery
-      };
+const youtubeId = extractYouTubeId(youtube);
+const isShorts = (youtube || "").includes("/shorts/");
+
+items[idx] = {
+  ...items[idx],
+  title: eTitle.value.trim(),
+  desc: eDesc.value.trim(),
+  tags,
+  cover: eCover.value.trim(),
+  youtube,
+  youtubeId,
+  isShorts,
+  gallery
+};
+
       saveLocal();
       renderTags();
       render();
@@ -475,10 +506,27 @@ function cardMediaHTML(it){
       const desc = document.getElementById('f-desc').value.trim();
       const tags = document.getElementById('f-tags').value.split(',').map(s=>s.trim()).filter(Boolean);
       const cover = document.getElementById('f-img').value.trim();
-      const youtube = document.getElementById('f-yt').value.trim();
-      const gallery = document.getElementById('f-gallery').value.split('\n').map(s=>s.trim()).filter(Boolean).slice(0,10);
-      const id = Date.now();
-      items.unshift({id,title,desc,tags,cover,youtube,youtubeId:extractYouTubeId(youtube),gallery});
+     const youtube = document.getElementById('f-yt').value.trim();
+const gallery = document.getElementById('f-gallery').value
+  .split('\n')
+  .map(s => s.trim())
+  .filter(Boolean)
+  .slice(0, 10);
+const id = Date.now();
+const youtubeId = extractYouTubeId(youtube);
+const isShorts = (youtube || "").includes("/shorts/");
+
+items.unshift({
+  id,
+  title,
+  desc,
+  tags,
+  cover,
+  youtube,
+  youtubeId,
+  isShorts,
+  gallery
+});
       saveLocal(); renderTags(); render();
       alert('추가되었습니다. (로컬 저장) JSON 내보내기로 배포 파일을 갱신하세요.');
     });
@@ -496,11 +544,13 @@ function cardMediaHTML(it){
       fr.onload = ()=>{
         try {
           items = JSON.parse(fr.result);
-          items.forEach(it=>{
-            it.tags = it.tags || [];
-            it.gallery = (it.gallery || []).slice(0,10);
-            it.youtubeId = extractYouTubeId(it.youtube||"");
-          });
+items.forEach(it=>{
+  it.tags = it.tags || [];
+  it.gallery = (it.gallery || []).slice(0,10);
+  it.youtubeId = extractYouTubeId(it.youtube || "");
+  it.isShorts = (it.youtube || "").includes("/shorts/");
+});
+
           saveLocal(); renderTags(); render(); alert('가져오기 완료(로컬 저장). 내보내기 후 repo에 업로드하세요.');
         } catch(err){ alert('JSON 형식 오류'); }
       };
