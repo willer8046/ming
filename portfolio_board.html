@@ -238,6 +238,7 @@ https://...2.jpg"></textarea>
         it.tags = it.tags || [];
         it.gallery = (it.gallery || []).slice(0,10); // 최대 10장 제한
         it.youtubeId = extractYouTubeId(it.youtube || "");
+        it.isShorts = (it.youtube || "").includes("/shorts/"); // 👈 쇼츠 여부
       });
     }
     function saveLocal(){ localStorage.setItem(KEY, JSON.stringify(items)); }
@@ -273,21 +274,32 @@ https://...2.jpg"></textarea>
     }
 
 function cardMediaHTML(it){
+  // 쇼츠이면 세로(9:16), 아니면 가로(16:9)
+  const isShorts = it.isShorts === true;
+  const ratioClass = isShorts ? "video-vertical" : "video-horizontal";
+
   if(it.youtubeId){
     const thumb = ytThumb(it.youtubeId);
     return `
-      <div class="media video-thumb" data-video="${it.youtubeId}">
-        <img src="${thumb}" alt="${escapeHTML(it.title)} 유튜브 썸네일" loading="lazy"/>
+      <div class="media video-thumb ${ratioClass}" data-video="${it.youtubeId}">
+        <img 
+          src="${thumb}" 
+          alt="${escapeHTML(it.title)} 유튜브 썸네일" 
+          loading="lazy"
+        />
         <iframe 
           src="https://www.youtube.com/embed/${it.youtubeId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${it.youtubeId}" 
           allow="autoplay; encrypted-media"
-          allowfullscreen></iframe>
+          allowfullscreen
+        ></iframe>
         <span class="yt-badge">▶ 영상</span>
       </div>`;
   }
+
+  // 유튜브가 없는 경우: 기존 이미지 그대로
   return it.cover
-    ? `<div class="media"><img src="${it.cover}" alt="${escapeHTML(it.title)} 대표 이미지" loading="lazy"/></div>`
-    : `<div class="media"></div>`;
+    ? `<div class="media video-horizontal"><img src="${it.cover}" alt="${escapeHTML(it.title)} 대표 이미지" loading="lazy"/></div>`
+    : `<div class="media video-horizontal"></div>`;
 }
 
 
