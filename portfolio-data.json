@@ -27,28 +27,55 @@
   },
   {
     "id": 2,
-    "title": "프랜차이즈 매장 인테리어",
-    "desc": "브랜드 정체성을 살린 세련된 매장 디자인",
+    "title": "포차천국 운서점",
+    "desc": "인더스트리얼 빈티지 컨셉 주점",
     "tags": [
       "상업",
-      "프랜차이즈"
+      "프랜차이즈",
+      "주점",
+      "포차천국",
+      "식당",
+      "빈티지",
+      "인더스트리얼"
     ],
-    "cover": "https://images.unsplash.com/photo-1501045661006-fcebe0257c3f?q=80&w=1200&auto=format&fit=crop",
-    "gallery": [],
+    "cover": "https://i.postimg.cc/9XYFb446/IMG-7091.jpg",
+    "gallery": [
+      "https://i.postimg.cc/bY9NgGDX/1695039836617.jpg",
+      "https://i.postimg.cc/Gh335cG0/1695039836665.jpg",
+      "https://i.postimg.cc/v8tHh11W/IMG-7079.jpg",
+      "https://i.postimg.cc/J754xyyc/IMG-7084.jpg",
+      "https://i.postimg.cc/L436DqqV/IMG-7085.jpg",
+      "https://i.postimg.cc/jq4dcWWH/IMG-7088.jpg",
+      "https://i.postimg.cc/9FXXnWTk/IMG-7092.jpg",
+      "https://i.postimg.cc/15RRj9wS/IMG-7093.jpg"
+    ],
     "youtubeId": "",
-    "isShorts": false
+    "isShorts": false,
+    "youtube": ""
   },
   {
     "id": 3,
-    "title": "모던 주거 공간 인테리어",
-    "desc": "화이트와 우드톤으로 따뜻하고 아늑한 거실 연출",
+    "title": "강남 학원 인테리어",
+    "desc": "강남 대치 투에스에듀학원",
     "tags": [
-      "주거",
-      "리빙룸"
+      "학원",
+      "모던",
+      "하이엔드",
+      "오피스",
+      "유럽미장"
     ],
-    "cover": "https://images.unsplash.com/photo-1505691723518-36a5ac3be353?q=80&w=1200&auto=format&fit=crop",
-    "gallery": [],
+    "cover": "https://i.postimg.cc/28rtrmn1/Kakao-Talk-20231115-151234940-11.jpg",
+    "gallery": [
+      "https://i.postimg.cc/m2BnBR7L/1698394643537.jpg",
+      "https://i.postimg.cc/4Ns0sZpn/Kakao-Talk-20231115-151234940-03.jpg",
+      "https://i.postimg.cc/MKqLqx1c/Kakao-Talk-20231115-151234940-17.jpg",
+      "https://i.postimg.cc/SNkPkqcc/Kakao-Talk-20231115-151234940-18.jpg",
+      "https://i.postimg.cc/8PNYNDLv/Kakao-Talk-20250325-164510991-01.jpg",
+      "https://i.postimg.cc/65tPtwCn/Kakao-Talk-20250325-164510991-02.jpg",
+      "https://i.postimg.cc/CLS2SYbz/Kakao-Talk-20250325-164510991-03.jpg"
+    ],
     "youtubeId": "",
-    "isShorts": false
+    "isShorts": false,
+    "youtube": ""
   }
 ]
