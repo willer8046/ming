@@ -20,7 +20,15 @@
     header{position:sticky;top:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);box-shadow:var(--shadow);z-index:50}
     nav{display:flex;align-items:center;justify-content:space-between;height:64px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800}
-    .logo{width:28px;height:28px;border-radius:50%;background:var(--primary)}
+    
+    .brand .logo {
+  height: 60px;     /* 원하면 80px, 100px 등으로 조절 */
+  width: auto;
+  display: block;
+  border-radius: 0; /* 동그라미 제거 */
+  background: none;
+}
+
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid #e6eef5;background:#fff;font-weight:700;cursor:pointer}
     .btn.primary{background:var(--primary);color:#fff;border-color:transparent}
     .btn.ghost{background:#f0f7fc}
@@ -94,11 +102,11 @@
     <div class="container">
       <nav>
         <div class="brand">
-          <span class="logo" aria-hidden="true"></span>
-          <a href="index.html" aria-label="홈으로">
-            <img src="images/logo_main.png" alt="Soo Design 로고" class="logo" />
-          </a>
-        </div>
+  <a href="index.html" aria-label="홈으로">
+    <img src="images/logo_main.png" alt="Soo Design 로고" class="logo" />
+  </a>
+</div>
+
         <div style="display:flex;gap:10px">
           <a class="btn ghost" href="index.html#work">← 홈페이지로</a>
           <button class="btn" id="btn-admin-login">관리자 로그인</button>
